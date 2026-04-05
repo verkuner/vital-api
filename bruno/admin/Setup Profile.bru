@@ -1,0 +1,19 @@
+meta {
+  name: Setup Profile
+  type: http
+  seq: 0
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  Call this after Login to auto-provision the local user profile.
+  Must be called before recording vitals, alerts, or thresholds.
+}

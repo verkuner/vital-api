@@ -1,0 +1,28 @@
+meta {
+  name: Register Device
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/users/me/devices
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Apple Watch Series 9",
+    "type": "smartwatch"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("deviceId", res.body.data.id);
+  }
+}

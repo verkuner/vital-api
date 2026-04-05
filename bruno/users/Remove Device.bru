@@ -1,0 +1,14 @@
+meta {
+  name: Remove Device
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/users/me/devices/{{deviceId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

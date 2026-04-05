@@ -1,0 +1,130 @@
+version: "3.9"
+
+# Production infrastructure stack.
+# The API itself runs via `encore build docker` — NOT in this compose file.
+# Local/dev uses Supabase Auth (managed SaaS) instead of Keycloak.
+
+services:
+  # ── PostgreSQL + TimescaleDB ────────────────────────────────────────────────
+  postgres:
+    image: timescale/timescaledb:latest-pg18
+    container_name: vital-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vital_signs
+      POSTGRES_USER: vital
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vital_secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vital -d vital_signs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: vital-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Keycloak (production auth Vault) ────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: vital-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/vital_signs
+      KC_DB_USERNAME: vital
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-vital_secret}
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    ports:
+      - "8180:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── OpenTelemetry Collector ─────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.115.0
+    container_name: vital-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "13133:13133" # health check
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── SigNoz (self-hosted observability) ──────────────────────────────────────
+  signoz-clickhouse:
+    image: clickhouse/clickhouse-server:24.8-alpine
+    container_name: vital-clickhouse
+    restart: unless-stopped
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  signoz-otel-collector:
+    image: signoz/signoz-otel-collector:0.111.32
+    container_name: vital-signoz-collector
+    restart: unless-stopped
+    environment:
+      - SIGNOZ_CLICKHOUSE_HOST=signoz-clickhouse
+      - SIGNOZ_CLICKHOUSE_PORT=9000
+    depends_on:
+      signoz-clickhouse:
+        condition: service_healthy
+
+  signoz-query-service:
+    image: signoz/query-service:0.111.32
+    container_name: vital-signoz-query
+    restart: unless-stopped
+    environment:
+      - ClickHouseUrl=tcp://signoz-clickhouse:9000
+      - SIGNOZ_LOCAL_DB_PATH=/var/lib/signoz/signoz.db
+    volumes:
+      - signoz_data:/var/lib/signoz
+    depends_on:
+      signoz-clickhouse:
+        condition: service_healthy
+
+  signoz-frontend:
+    image: signoz/frontend:0.111.32
+    container_name: vital-signoz-frontend
+    restart: unless-stopped
+    ports:
+      - "3301:3301"
+    depends_on:
+      - signoz-query-service
+
+volumes:
+  postgres_data:
+  redis_data:
+  clickhouse_data:
+  signoz_data:

@@ -1,0 +1,20 @@
+meta {
+  name: List Alerts
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/alerts?per_page=10
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.data && res.body.data.length > 0) {
+    bru.setVar("alertId", res.body.data[0].id);
+  }
+}

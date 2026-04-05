@@ -1,0 +1,14 @@
+meta {
+  name: List Vitals by Type
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/vitals?vital_type=heart_rate&limit=10
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

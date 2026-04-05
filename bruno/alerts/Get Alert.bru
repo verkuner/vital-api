@@ -1,0 +1,14 @@
+meta {
+  name: Get Alert
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/alert/{{alertId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

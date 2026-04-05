@@ -1,0 +1,14 @@
+meta {
+  name: List Alerts Unacked
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/alerts?acknowledged=false&per_page=10
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

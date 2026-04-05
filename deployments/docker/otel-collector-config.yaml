@@ -1,0 +1,57 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+
+  # PHI scrubbing — strip sensitive attributes before export
+  attributes/sanitize:
+    actions:
+      - key: db.statement
+        action: delete
+      - key: vital.value
+        action: delete
+      - key: http.request.body
+        action: delete
+      - key: user.email
+        action: hash
+
+exporters:
+  otlp/signoz:
+    endpoint: signoz-otel-collector:4317
+    tls:
+      insecure: true
+
+service:
+  extensions: [health_check]
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/sanitize, batch]
+      exporters: [otlp/signoz]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/signoz]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/sanitize, batch]
+      exporters: [otlp/signoz]
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133

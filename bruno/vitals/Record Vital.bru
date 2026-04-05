@@ -1,0 +1,31 @@
+meta {
+  name: Record Vital
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/vitals
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "vital_type": "heart_rate",
+    "value": 72,
+    "unit": "bpm",
+    "notes": "Resting heart rate",
+    "measured_at": "2026-04-05T10:30:00Z"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("vitalId", res.body.data.id);
+  }
+}

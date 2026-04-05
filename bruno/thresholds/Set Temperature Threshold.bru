@@ -1,0 +1,23 @@
+meta {
+  name: Set Temperature Threshold
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/v1/thresholds/temperature
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "low_value": 96.0,
+    "high_value": 100.4,
+    "enabled": true
+  }
+}

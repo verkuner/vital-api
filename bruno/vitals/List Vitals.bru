@@ -1,0 +1,14 @@
+meta {
+  name: List Vitals
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/vitals?limit=10
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

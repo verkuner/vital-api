@@ -1,0 +1,14 @@
+meta {
+  name: Get Latest Vitals
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/vitals/latest
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

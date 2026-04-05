@@ -1,0 +1,14 @@
+meta {
+  name: Delete Threshold
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/thresholds/heart_rate
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

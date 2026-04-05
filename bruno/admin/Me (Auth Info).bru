@@ -1,0 +1,14 @@
+meta {
+  name: Me (Auth Info)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/vital/me
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

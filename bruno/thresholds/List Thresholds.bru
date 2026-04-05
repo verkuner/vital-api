@@ -1,0 +1,14 @@
+meta {
+  name: List Thresholds
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/thresholds
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Set Heart Rate Threshold
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/api/v1/thresholds/heart_rate
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "low_value": 50,
+    "high_value": 110,
+    "enabled": true
+  }
+}

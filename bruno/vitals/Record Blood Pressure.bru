@@ -1,0 +1,24 @@
+meta {
+  name: Record Blood Pressure
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/vitals
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "vital_type": "blood_pressure_systolic",
+    "value": 120,
+    "unit": "mmHg",
+    "measured_at": "2026-04-05T10:30:00Z"
+  }
+}

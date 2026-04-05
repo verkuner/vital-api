@@ -1,0 +1,14 @@
+meta {
+  name: Get Vital
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/vital/{{vitalId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

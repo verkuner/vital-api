@@ -1,0 +1,14 @@
+meta {
+  name: Acknowledge Alert
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/alert/{{alertId}}/acknowledge
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

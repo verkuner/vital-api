@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS provider_patients;
+DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS alerts;
+DROP TABLE IF EXISTS alert_thresholds;
+DROP TABLE IF EXISTS vital_readings;
+DROP TABLE IF EXISTS users;
