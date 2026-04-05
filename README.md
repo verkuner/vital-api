@@ -1,40 +1,164 @@
-Prompt 1 — Foundation + Encore Setup
-Generate the project scaffold for vital-api: encore.app, go.mod, Makefile, all empty directories for services (auth/, vital/, user/, alert/, websocket/), shared packages (authhandler/, authprovider/, middleware/, observability/, database/, apperror/), and initial files: apperror/errors.go, apperror/http_errors.go, database/redis.go, observability/logger.go.
+# Vital Signs API
 
-Follow CLAUDE.md for Encore service-based structure. Follow docs/code-conventions.md for error patterns and docs/api-best-practices.md for HTTP status codes. Set up encore.app configuration.
+Backend API for a vital signs monitoring mobile application. Record, track, and get alerts on health metrics like heart rate, blood pressure, temperature, oxygen saturation, and more.
 
+## What It Does
 
-Prompt 2 — Database layer
-Generate database declarations (vital/db.go, user/db.go, alert/db.go, auth/db.go), all SQL migrations in each service's migrations/ directory, sqlc query files in db/queries/, and db/sqlc.yaml.
+- **Record vitals** from mobile devices or wearables
+- **Track trends** with time-series queries and summaries
+- **Set alert thresholds** per vital type (e.g., heart rate > 110 bpm)
+- **Get notified** when readings breach your thresholds
+- **Real-time streaming** via WebSocket for live monitoring dashboards
+- **Multi-provider auth** — works with Supabase Auth, Clerk, or Keycloak
 
-Follow docs/database.md entirely — schema, Encore sqldb declarations, TimescaleDB-aware migrations (with fallbacks for local/dev), sqlc config, and query patterns. Queries must cover all operations needed by endpoints in docs/features.md. Note: TimescaleDB features (hypertable, continuous aggregates) should be conditional for production only.
+## Getting Started
 
+### Prerequisites
 
-Prompt 3 — Auth Handler + Middleware
-Generate authhandler/authhandler.go (Encore //encore:authhandler — provider-agnostic JWT validation), authprovider/provider.go (AuthProvider interface), authprovider/supabase.go (Supabase Auth implementation), authprovider/clerk.go (Clerk implementation), authprovider/keycloak.go (Keycloak implementation), and all files in middleware/ (ratelimit.go, cors.go).
+- [Go 1.24+](https://go.dev/dl/)
+- [Encore CLI](https://encore.dev/docs/install) — `brew install encoredev/tap/encore`
+- A [Supabase](https://supabase.com) project (free tier works)
 
-Follow docs/security.md for auth architecture: Supabase Auth/Clerk as Vault for local/dev, Keycloak as Vault for production, Encore auth handler as Gatekeeper in all environments. The auth handler validates JWTs from any OIDC-compliant provider via configurable JWKS URL. Follow docs/code-conventions.md middleware chain.
+### 1. Clone & configure
 
+```bash
+git clone https://github.com/verkuner/vital-api.git
+cd vital-api
+```
 
-Prompt 4 — Observability
-Generate observability/otel.go (production OTel setup), observability/meter.go (custom metrics), observability/logger.go (slog config).
+Set your Supabase credentials as Encore secrets:
 
-Follow docs/observability.md entirely. OTel initialization should be environment-aware: no-op in local/dev (Encore handles tracing), full OTel pipeline in production (traces, metrics, logs -> SigNoz). Follow PHI scrubbing rules.
+```bash
+encore secret set --type local,dev DatabaseURL
+# Paste: postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres
 
+encore secret set --type local,dev SupabaseURL
+# Paste: https://<ref>.supabase.co
 
-Prompt 5 — Feature services
-Generate all files in vital/, alert/, user/, auth/ — Encore API endpoints ({service}.go with //encore:api annotations), service.go, repository.go, model.go for each service.
+encore secret set --type local,dev SupabaseAnonKey
+# Paste: your anon key from Supabase Dashboard > Settings > API
 
-Follow docs/features.md for all endpoints, request/response shapes, and business rules. Follow docs/code-conventions.md Encore service struct pattern. Follow docs/security.md for ownership checks and role-based access. Auth service delegates to AuthProvider interface (Supabase Auth/Clerk for local/dev, Keycloak for production). Follow docs/testing.md for unit test structure alongside each package.
+encore secret set --type local,dev SupabaseServiceRoleKey
+# Paste: your service_role key
 
+encore secret set --type local,dev JWKSURL
+# Paste: https://<ref>.supabase.co/auth/v1/.well-known/jwks.json
+```
 
-Prompt 6 — WebSocket, Server Wiring & Tests
-Generate websocket/ (websocket.go with //encore:api raw endpoint, hub.go, client.go, message.go), and all unit/integration tests.
+### 2. Run locally
 
-Follow docs/features.md WebSocket section for message types and limits. WebSocket uses Encore's raw endpoint pattern. Follow docs/testing.md for Encore test runner patterns, mock structures, and repository integration tests.
+```bash
+encore run --port 5080
+```
 
+- API: http://127.0.0.1:5080
+- Dashboard: http://127.0.0.1:9400
 
-Prompt 7 — Production Deployment
-Generate deployments/docker/docker-compose.yml (Postgres+TimescaleDB, Redis, Keycloak, SigNoz, OTel Collector), deployments/docker/otel-collector-config.yaml, scripts/migrate.sh, and scripts/seed.sh.
+### 3. Verify
 
-Follow CLAUDE.md for production standalone infra. Follow docs/observability.md for OTel Collector config (production only). docker-compose.yml includes Keycloak for production auth, but NOT the API itself (that runs via `encore run` locally or `encore build docker` for production images). Local/dev uses Supabase Auth or Clerk (managed SaaS) instead of Keycloak.
+```bash
+curl http://127.0.0.1:5080/vital/health
+# {"status":"ok","service":"vital"}
+```
+
+### 4. Create a test user & start using the API
+
+```bash
+# Register
+curl -X POST http://127.0.0.1:5080/api/v1/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"you@example.com","password":"YourPass123!","name":"Your Name"}'
+
+# Login (save the access_token)
+curl -X POST http://127.0.0.1:5080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"you@example.com","password":"YourPass123!"}'
+
+# Provision your profile (required before recording vitals)
+curl http://127.0.0.1:5080/api/v1/users/me \
+  -H 'Authorization: Bearer <access_token>'
+
+# Record a heart rate reading
+curl -X POST http://127.0.0.1:5080/api/v1/vitals \
+  -H 'Authorization: Bearer <access_token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"vital_type":"heart_rate","value":72,"unit":"bpm","measured_at":"2026-04-05T10:30:00Z"}'
+
+# List your vitals
+curl http://127.0.0.1:5080/api/v1/vitals \
+  -H 'Authorization: Bearer <access_token>'
+```
+
+## API Testing with Bruno
+
+The repo includes a [Bruno](https://www.usebruno.com/) collection with 27 pre-built requests.
+
+```bash
+brew install --cask bruno
+```
+
+Open Bruno, select **Open Collection**, and point to the `bruno/` folder. Choose the `local` or `dev` environment and run requests interactively.
+
+CLI usage:
+
+```bash
+cd bruno
+bru run --env local --sandbox=developer auth/Login.bru admin/Setup\ Profile.bru vitals/
+```
+
+## Environments
+
+| Environment | URL | Trigger |
+|-------------|-----|---------|
+| Local | http://127.0.0.1:5080 | `encore run` |
+| Dev (Encore Cloud) | https://staging-vital-api-cq4i.encr.app | Push to `main` |
+
+## Supported Vital Types
+
+| Type | Unit | Example Normal Range |
+|------|------|---------------------|
+| `heart_rate` | bpm | 60–100 |
+| `blood_pressure_systolic` | mmHg | 90–120 |
+| `blood_pressure_diastolic` | mmHg | 60–80 |
+| `temperature` | °F | 97.0–99.5 |
+| `oxygen_saturation` | % | 95–100 |
+| `respiratory_rate` | breaths/min | 12–20 |
+| `blood_glucose` | mg/dL | 70–140 |
+
+## Auth Flow
+
+1. **Register** or **Login** via `/api/v1/auth/login` to get a JWT access token
+2. Pass the token as `Authorization: Bearer <token>` on all authenticated endpoints
+3. On first authenticated request, call `GET /api/v1/users/me` to auto-provision your local profile
+4. Tokens expire after 1 hour — use `/api/v1/auth/refresh` to renew
+
+## Database Setup
+
+Tables are auto-created via the `/admin/migrate` endpoint or on first run. For manual setup:
+
+```bash
+# Check existing tables
+curl http://127.0.0.1:5080/admin/check-tables
+
+# Run migrations (idempotent)
+curl -X POST http://127.0.0.1:5080/admin/migrate
+```
+
+## Deployment
+
+Pushes to `main` auto-deploy to Encore Cloud. For self-hosted production:
+
+```bash
+# Build Docker image
+encore build docker vital-api:latest
+
+# Start infrastructure
+docker compose -f deployments/docker/docker-compose.yml up -d
+
+# Run database migrations
+./scripts/migrate.sh up
+```
+
+## Further Reading
+
+See the [`docs/`](docs/) folder for detailed documentation on architecture, conventions, and internals.
