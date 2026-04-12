@@ -18,11 +18,7 @@ func initService() (*Service, error) {
 	return &Service{}, nil
 }
 
-type SpecResponse struct {
-	Spec string `json:"spec" encore:"raw"`
-}
-
-//encore:api public method=GET path=/docs/openapi.json
+//encore:api public raw method=GET path=/docs/openapi.json
 func (s *Service) OpenAPISpec(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
