@@ -1,0 +1,1968 @@
+{
+  "components": {
+    "responses": {
+      "APIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "externalDocs": {
+                "url": "https://pkg.go.dev/encore.dev/beta/errs#Error"
+              },
+              "properties": {
+                "code": {
+                  "description": "Error code",
+                  "example": "not_found",
+                  "externalDocs": {
+                    "url": "https://pkg.go.dev/encore.dev/beta/errs#ErrCode"
+                  },
+                  "type": "string"
+                },
+                "details": {
+                  "description": "Error details",
+                  "type": "object"
+                },
+                "message": {
+                  "description": "Error message",
+                  "type": "string"
+                }
+              },
+              "title": "APIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error response"
+      }
+    },
+    "schemas": {
+      "alert.Alert": {
+        "properties": {
+          "acknowledged": {
+            "type": "boolean"
+          },
+          "acknowledged_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "threshold_breached": {
+            "type": "string"
+          },
+          "threshold_value": {
+            "type": "number"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "value": {
+            "type": "number"
+          },
+          "vital_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "vital_type",
+          "value",
+          "threshold_breached",
+          "threshold_value",
+          "severity",
+          "acknowledged",
+          "acknowledged_at",
+          "created_at"
+        ],
+        "title": "Alert represents an alert triggered when a vital reading breaches a threshold.\n",
+        "type": "object"
+      },
+      "alert.AlertMeta": {
+        "properties": {
+          "page": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "per_page": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "per_page"
+        ],
+        "type": "object"
+      },
+      "alert.AlertThreshold": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "high_value": {
+            "type": "number"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "low_value": {
+            "type": "number"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "vital_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "vital_type",
+          "low_value",
+          "high_value",
+          "enabled"
+        ],
+        "title": "AlertThreshold defines the monitoring bounds for a vital type.\n",
+        "type": "object"
+      },
+      "authprovider.MFAEnrollment": {
+        "properties": {
+          "qr_code": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qr_code",
+          "secret",
+          "uri"
+        ],
+        "type": "object"
+      },
+      "user.Device": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "name",
+          "type",
+          "created_at"
+        ],
+        "title": "Device represents a registered monitoring device.\n",
+        "type": "object"
+      },
+      "user.User": {
+        "properties": {
+          "avatar_url": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "date_of_birth": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "provider_id": {
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "provider_id",
+          "email",
+          "name",
+          "date_of_birth",
+          "avatar_url",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "User represents a user profile stored locally.\n",
+        "type": "object"
+      },
+      "uuid.UUID": {
+        "description": "4122\\.\n",
+        "format": "byte",
+        "title": "A UUID is a 128 bit (16 byte) Universal Unique IDentifier as defined in RFC\n",
+        "type": "string"
+      },
+      "vital.ListMeta": {
+        "properties": {
+          "has_more": {
+            "type": "boolean"
+          },
+          "limit": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "limit",
+          "has_more",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "vital.OverallStats": {
+        "properties": {
+          "avg": {
+            "type": "number"
+          },
+          "count": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "avg",
+          "min",
+          "max",
+          "count"
+        ],
+        "type": "object"
+      },
+      "vital.SummaryData": {
+        "properties": {
+          "buckets": {
+            "items": {
+              "$ref": "#/components/schemas/vital.VitalSummaryBucket"
+            },
+            "type": "array"
+          },
+          "from": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "overall": {
+            "$ref": "#/components/schemas/vital.OverallStats"
+          },
+          "to": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "vital_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "vital_type",
+          "from",
+          "to",
+          "overall",
+          "buckets"
+        ],
+        "type": "object"
+      },
+      "vital.VitalReading": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "device_id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "measured_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid.UUID"
+          },
+          "value": {
+            "type": "number"
+          },
+          "vital_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "vital_type",
+          "value",
+          "unit",
+          "status",
+          "device_id",
+          "notes",
+          "measured_at",
+          "created_at"
+        ],
+        "title": "VitalReading represents a single vital sign measurement.\n",
+        "type": "object"
+      },
+      "vital.VitalSummaryBucket": {
+        "properties": {
+          "avg": {
+            "type": "number"
+          },
+          "bucket": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "count": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "avg",
+          "min",
+          "max",
+          "count"
+        ],
+        "title": "VitalSummaryBucket is a single time-aggregated bucket.\n",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated by encore",
+    "title": "API for vital-api-cq4i",
+    "version": "1",
+    "x-logo": {
+      "altText": "Encore logo",
+      "backgroundColor": "#EEEEE1",
+      "url": "https://encore.dev/assets/branding/logo/logo-black.png"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/admin/check-tables": {
+      "get": {
+        "operationId": "GET:vital.CheckTables",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "missing": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "ready": {
+                      "type": "boolean"
+                    },
+                    "tables": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "tables",
+                    "missing",
+                    "ready"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "CheckTables lists which required tables exist in the database.\n"
+      }
+    },
+    "/admin/migrate": {
+      "post": {
+        "operationId": "POST:vital.RunMigration",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "created": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "RunMigration creates any missing tables using idempotent DDL.\n"
+      }
+    },
+    "/api/v1/alert/{id}": {
+      "get": {
+        "operationId": "GET:alert.GetAlert",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/alert.Alert"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "GetAlert returns a specific alert.\n"
+      }
+    },
+    "/api/v1/alert/{id}/acknowledge": {
+      "post": {
+        "operationId": "POST:alert.AcknowledgeAlert",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/alert.Alert"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "AcknowledgeAlert marks an alert as acknowledged.\n"
+      }
+    },
+    "/api/v1/alerts": {
+      "get": {
+        "operationId": "GET:alert.ListAlerts",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "severity",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "acknowledged",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "vital_type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "page",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "per_page",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/alert.Alert"
+                      },
+                      "type": "array"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/alert.AlertMeta"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "ListAlerts returns a filtered, paginated list of alerts.\n"
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "POST:auth.ForgotPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "ForgotPassword triggers a password reset email.\n"
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "POST:auth.Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "expires_in": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "mfa_required": {
+                      "type": "boolean"
+                    },
+                    "refresh_token": {
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "access_token",
+                    "refresh_token",
+                    "expires_in",
+                    "token_type",
+                    "user_id",
+                    "mfa_required"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "Login authenticates an existing user via the configured auth provider.\n"
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "POST:auth.Logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "Logout revokes the current session.\n"
+      }
+    },
+    "/api/v1/auth/mfa": {
+      "delete": {
+        "operationId": "DELETE:auth.RemoveMFA",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "RemoveMFA removes MFA from the account.\n"
+      }
+    },
+    "/api/v1/auth/mfa/enroll": {
+      "post": {
+        "operationId": "POST:auth.EnrollMFA",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/authprovider.MFAEnrollment"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "EnrollMFA begins TOTP MFA enrollment.\n"
+      }
+    },
+    "/api/v1/auth/mfa/verify": {
+      "post": {
+        "operationId": "POST:auth.VerifyMFA",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "VerifyMFA confirms MFA enrollment with a TOTP code.\n"
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "POST:auth.Refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "expires_in": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "mfa_required": {
+                      "type": "boolean"
+                    },
+                    "refresh_token": {
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "access_token",
+                    "refresh_token",
+                    "expires_in",
+                    "token_type",
+                    "user_id",
+                    "mfa_required"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "Refresh exchanges a refresh token for a new access token.\n"
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "POST:auth.Register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "date_of_birth": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name",
+                  "date_of_birth"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "expires_in": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "mfa_required": {
+                      "type": "boolean"
+                    },
+                    "refresh_token": {
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "access_token",
+                    "refresh_token",
+                    "expires_in",
+                    "token_type",
+                    "user_id",
+                    "mfa_required"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "Register creates a new user account via the configured auth provider.\n"
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "POST:auth.ResetPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "new_password": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token",
+                  "new_password"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "ResetPassword completes a password reset.\n"
+      }
+    },
+    "/api/v1/thresholds": {
+      "get": {
+        "operationId": "GET:alert.ListThresholds",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/alert.AlertThreshold"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "ListThresholds returns the current user's alert thresholds.\n"
+      }
+    },
+    "/api/v1/thresholds/{vitalType}": {
+      "delete": {
+        "operationId": "DELETE:alert.DeleteThreshold",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "vitalType",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "DeleteThreshold removes a threshold (reverts to defaults).\n"
+      },
+      "put": {
+        "operationId": "PUT:alert.SetThreshold",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "vitalType",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "high_value": {
+                    "type": "number"
+                  },
+                  "low_value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "low_value",
+                  "high_value",
+                  "enabled"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/alert.AlertThreshold"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "SetThreshold sets or updates a threshold for a vital type.\n"
+      }
+    },
+    "/api/v1/users/me": {
+      "delete": {
+        "operationId": "DELETE:user.DeleteAccount",
+        "responses": {
+          "200": {
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "DeleteAccount deletes the current user's account and all associated data.\n"
+      },
+      "get": {
+        "description": "Auto-provisions a local profile from JWT claims on first access.\n",
+        "operationId": "GET:user.GetProfile",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/user.User"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "GetProfile returns the current user's profile.\n"
+      },
+      "patch": {
+        "operationId": "PATCH:user.UpdateProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "avatar_url": {
+                    "type": "string"
+                  },
+                  "date_of_birth": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "date_of_birth",
+                  "avatar_url"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/user.User"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "UpdateProfile updates the current user's profile fields.\n"
+      }
+    },
+    "/api/v1/users/me/devices": {
+      "get": {
+        "operationId": "GET:user.ListDevices",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/user.Device"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "ListDevices returns the current user's registered devices.\n"
+      },
+      "post": {
+        "operationId": "POST:user.RegisterDevice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/user.Device"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "RegisterDevice registers a new monitoring device.\n"
+      }
+    },
+    "/api/v1/users/me/devices/{id}": {
+      "delete": {
+        "operationId": "DELETE:user.RemoveDevice",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "RemoveDevice removes a registered device.\n"
+      }
+    },
+    "/api/v1/vital/{id}": {
+      "delete": {
+        "operationId": "DELETE:vital.DeleteVital",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "DeleteVital deletes a vital reading.\n"
+      },
+      "get": {
+        "operationId": "GET:vital.GetVital",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": false,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/vital.VitalReading"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "GetVital returns a specific vital reading.\n"
+      }
+    },
+    "/api/v1/vitals": {
+      "get": {
+        "operationId": "GET:vital.ListVitals",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "vital_type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "before",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "limit",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/vital.VitalReading"
+                      },
+                      "type": "array"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/vital.ListMeta"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "ListVitals lists vital readings with filters and pagination.\n"
+      },
+      "post": {
+        "operationId": "POST:vital.RecordVital",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "device_id": {
+                    "$ref": "#/components/schemas/uuid.UUID"
+                  },
+                  "measured_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "unit": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "vital_type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "vital_type",
+                  "value",
+                  "unit",
+                  "device_id",
+                  "notes",
+                  "measured_at"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/vital.VitalReading"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "RecordVital records a new vital sign reading.\n"
+      }
+    },
+    "/api/v1/vitals/latest": {
+      "get": {
+        "operationId": "GET:vital.GetLatestVitals",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/vital.VitalReading"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "GetLatestVitals returns the most recent reading per vital type.\n"
+      }
+    },
+    "/api/v1/vitals/summary": {
+      "get": {
+        "operationId": "GET:vital.GetSummary",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "vital_type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "explode": true,
+            "in": "query",
+            "name": "bucket",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/vital.SummaryData"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "GetSummary returns aggregated vital stats for a time range.\n"
+      }
+    },
+    "/dev/create-test-user": {
+      "post": {
+        "description": "Dev/local only — bypasses email confirmation for testing.\n",
+        "operationId": "POST:auth.CreateTestUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "user_id",
+                    "email"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "CreateTestUser creates a pre-confirmed user via Supabase Admin API.\n"
+      }
+    },
+    "/vital/health": {
+      "get": {
+        "operationId": "GET:vital.Health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "service": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "service"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "Health is a public health check endpoint.\n"
+      }
+    },
+    "/vital/me": {
+      "get": {
+        "operationId": "GET:vital.Me",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "roles": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "user_id",
+                    "email",
+                    "roles"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "Me returns the current authenticated user's information.\n"
+      }
+    },
+    "/ws": {
+      "get": {
+        "operationId": "GET:websocket.HandleWebSocket",
+        "responses": {
+          "200": {
+            "description": "Success response"
+          },
+          "default": {
+            "$ref": "#/components/responses/APIError"
+          }
+        },
+        "summary": "HandleWebSocket upgrades HTTP to WebSocket. Authentication via query param\ntoken.\n"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Encore local dev environment",
+      "url": "http://localhost:4000"
+    }
+  ]
+}

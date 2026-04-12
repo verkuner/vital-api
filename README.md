@@ -112,6 +112,8 @@ bru run --env local --sandbox=developer auth/Login.bru admin/Setup\ Profile.bru 
 |-------------|-----|---------|
 | Local | http://127.0.0.1:5080 | `encore run` |
 | Dev (Encore Cloud) | https://staging-vital-api-cq4i.encr.app | Push to `main` |
+| Dashboard (local) | http://localhost:9400 | `encore run` |
+| Dashboard (cloud) | https://app.encore.dev/vital-api-cq4i | Sign in with Encore account |
 
 ## Supported Vital Types
 
