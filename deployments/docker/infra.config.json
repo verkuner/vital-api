@@ -1,0 +1,17 @@
+{
+  "$schema": "https://encore.dev/schemas/infra.schema.json",
+  "metadata": {
+    "app_id": "vital-api-cq4i",
+    "env_name": "production",
+    "env_type": "production",
+    "cloud": "local",
+    "base_url": "http://101.42.46.218:5080"
+  },
+  "secrets": {
+    "DatabaseURL":            { "$env": "DATABASE_URL" },
+    "JWKSURL":                { "$env": "JWKS_URL" },
+    "SupabaseURL":            { "$env": "SUPABASE_URL" },
+    "SupabaseAnonKey":        { "$env": "SUPABASE_ANON_KEY" },
+    "SupabaseServiceRoleKey": { "$env": "SUPABASE_SERVICE_ROLE_KEY" }
+  }
+}

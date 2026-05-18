@@ -1,0 +1,131 @@
+version: "3.9"
+
+# Self-hosted SigNoz + ClickHouse stack — local observability only.
+# NOT used in production (production uses SigNoz Cloud).
+#
+# Usage:
+#   make signoz-configs   # download ClickHouse config files (run once)
+#   make signoz-up        # start the stack
+#   make signoz-down      # stop the stack
+
+services:
+  # ── Zookeeper (ClickHouse cluster coordination) ─────────────────────────────
+  signoz-zookeeper:
+    image: signoz/zookeeper:3.7.1
+    container_name: vital-signoz-zookeeper
+    restart: unless-stopped
+    user: root
+    environment:
+      - ZOO_SERVER_ID=1
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_AUTOPURGE_INTERVAL=1
+    volumes:
+      - signoz_zookeeper:/bitnami/zookeeper
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -m 2 http://localhost:8080/commands/ruok | grep error | grep null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── ClickHouse ──────────────────────────────────────────────────────────────
+  signoz-clickhouse:
+    image: clickhouse/clickhouse-server:25.5.6
+    container_name: vital-clickhouse
+    restart: unless-stopped
+    depends_on:
+      signoz-zookeeper:
+        condition: service_healthy
+    volumes:
+      - ./clickhouse/config.xml:/etc/clickhouse-server/config.xml:ro
+      - ./clickhouse/users.xml:/etc/clickhouse-server/users.xml:ro
+      - ./clickhouse/custom-function.xml:/etc/clickhouse-server/custom-function.xml:ro
+      - ./clickhouse/cluster.xml:/etc/clickhouse-server/config.d/cluster.xml:ro
+      - ./clickhouse/user_scripts:/var/lib/clickhouse/user_scripts
+      - signoz_clickhouse:/var/lib/clickhouse
+    environment:
+      - CLICKHOUSE_SKIP_USER_SETUP=1
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Runs schema migrations once (exits after completion).
+  signoz-migrator:
+    image: signoz/signoz-otel-collector:v0.144.3
+    container_name: vital-signoz-migrator
+    restart: on-failure
+    depends_on:
+      signoz-clickhouse:
+        condition: service_healthy
+    environment:
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://signoz-clickhouse:9000
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_CLUSTER=cluster
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_REPLICATION=true
+      - SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        /signoz-otel-collector migrate bootstrap &&
+        /signoz-otel-collector migrate sync up &&
+        /signoz-otel-collector migrate async up
+
+  # ── SigNoz (unified UI + API + alertmanager) ─────────────────────────────────
+  signoz:
+    image: signoz/signoz:v0.122.0
+    container_name: vital-signoz
+    restart: unless-stopped
+    depends_on:
+      signoz-clickhouse:
+        condition: service_healthy
+    ports:
+      - "3301:8080"   # SigNoz UI → http://localhost:3301
+    volumes:
+      - signoz_sqlite:/var/lib/signoz
+    environment:
+      - SIGNOZ_ALERTMANAGER_PROVIDER=signoz
+      - SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_DSN=tcp://signoz-clickhouse:9000
+      - SIGNOZ_SQLSTORE_SQLITE_PATH=/var/lib/signoz/signoz.db
+      - SIGNOZ_TOKENIZER_JWT_SECRET=${SIGNOZ_JWT_SECRET:-change_me_signoz_secret}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── SigNoz OTel Collector (receives forwarded telemetry, writes to ClickHouse) ──
+  signoz-otel-collector:
+    image: signoz/signoz-otel-collector:v0.144.3
+    container_name: vital-signoz-collector
+    restart: unless-stopped
+    depends_on:
+      signoz-clickhouse:
+        condition: service_healthy
+      signoz:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        /signoz-otel-collector migrate sync check &&
+        /signoz-otel-collector \
+          --config=/etc/signoz-otel-collector-config.yaml \
+          --manager-config=/etc/manager-config.yaml \
+          --copy-path=/var/tmp/collector-config.yaml
+    volumes:
+      - ./signoz-otel-collector-config.yaml:/etc/signoz-otel-collector-config.yaml:ro
+      - ./otel-collector-opamp-config.yaml:/etc/manager-config.yaml:ro
+    environment:
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://signoz-clickhouse:9000
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_CLUSTER=cluster
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_REPLICATION=true
+      - SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
+
+volumes:
+  signoz_clickhouse:
+  signoz_sqlite:
+  signoz_zookeeper:

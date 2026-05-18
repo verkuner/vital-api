@@ -29,9 +29,11 @@ processors:
 
 exporters:
   otlp/signoz:
-    endpoint: signoz-otel-collector:4317
+    endpoint: ${SIGNOZ_OTLP_ENDPOINT}
     tls:
-      insecure: true
+      insecure: false
+    headers:
+      signoz-ingestion-key: ${SIGNOZ_INGESTION_KEY}
 
 service:
   extensions: [health_check]
